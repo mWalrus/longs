@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         YT-Shorts remover
+// @name         YouTube Shorts Remover
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  remove youtube shorts from your homepage.
