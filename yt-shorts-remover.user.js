@@ -10,11 +10,10 @@
 // ==/UserScript==
 
 
-const MAIN_PAGE_SELECTOR = "[is-shorts='']"
-const NAV_BAR_SELECTOR = "[title='Shorts']"
-
 (function() {
-    'use strict';
+    window.MAIN_PAGE_SELECTOR = "[is-shorts='']"
+    window.NAV_BAR_SELECTOR = "[title='Shorts']"
+
     let resizeHandler = () => {
         // after this clear runs for a second time, i.e. in this listener callback,
         // we want to remove the listener because there are no more nav links to remove.
@@ -22,7 +21,7 @@ const NAV_BAR_SELECTOR = "[title='Shorts']"
     }
 
     // poll for readiness and run when ready
-    runWhenReady(NAV_BAR_SELECTOR, () => {
+    runWhenReady(window.NAV_BAR_SELECTOR, () => {
         clearNavLinks()
         clearMainPageSection()
     })
@@ -58,7 +57,7 @@ function runWhenReady(readySelector, callback) {
 
 // remove side nav links related to shorts
 function clearNavLinks() {
-    let shortsLinks = document.querySelectorAll(NAV_BAR_SELECTOR)
+    let shortsLinks = document.querySelectorAll(window.NAV_BAR_SELECTOR)
 
     // return early if none was found
     if (!shortsLinks || shortsLinks.length === 0) return false
@@ -74,7 +73,7 @@ function clearNavLinks() {
 
 // remove the shorts section itself from the main feed.
 function clearMainPageSection() {
-    let shortsSection = document.querySelector(MAIN_PAGE_SELECTOR)
+    let shortsSection = document.querySelector(window.MAIN_PAGE_SELECTOR)
 
     // return early if undefined
     if (!shortsSection) return
@@ -86,8 +85,8 @@ function clearMainPageSection() {
 // we need to re-clear the main page if the feed is reset, which it is
 // when the user clicks the top bar logo to go back to the home page.
 function listenForTopBarLogoClick() {
-    let logo = document.getElementById("logo")
+    let logo = document.querySelector("ytd-topbar-logo-renderer#logo")
     logo.addEventListener("click", () => {
-        runWhenReady(MAIN_PAGE_SELECTOR, clearMainPageSection)
+        runWhenReady(window.MAIN_PAGE_SELECTOR, clearMainPageSection)
     })
 }
