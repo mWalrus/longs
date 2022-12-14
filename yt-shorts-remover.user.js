@@ -67,7 +67,7 @@ function clearNavLinks() {
 
 // remove the shorts section itself from the main feed.
 function clearMainPageSection() {
-    let shortsSection = document.querySelector("[is-shorts]")
+    let shortsSection = document.querySelector("[is-shorts='']")
 
     // return early if undefined
     if (!shortsSection) return
