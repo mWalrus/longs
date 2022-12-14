@@ -26,6 +26,9 @@
     // since yt uses different side nav links depending on the size of the window
     // we want to listen for resizes and remove any newly appended links from the DOM.
     window.addEventListener("resize", resizeHandler)
+
+    // this needs to run continually since yt re-inserts the shorts section on the main page.
+    listenForTopBarLogoClick()
 })();
 
 
@@ -74,4 +77,13 @@ function clearMainPageSection() {
 
     shortsSection.parentNode.removeChild(shortsSection)
     console.log('YT-SHORTS-REMOVER: Removed shorts section from page')
+}
+
+// we need to re-clear the main page if the feed is reset, which it is
+// when the user clicks the top bar logo to go back to the home page.
+function listenForTopBarLogoClick() {
+    let logo = document.getElementsByTagName("ytd-topbar-logo-renderer")
+    logo.addEventListener("click", () => {
+       clearMainPageSection()
+    })
 }
