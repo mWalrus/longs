@@ -9,6 +9,10 @@
 // @grant        none
 // ==/UserScript==
 
+
+const MAIN_PAGE_SELECTOR = "[is-shorts='']"
+const NAV_BAR_SELECTOR = "[title='Shorts']"
+
 (function() {
     'use strict';
     let resizeHandler = () => {
@@ -18,7 +22,7 @@
     }
 
     // poll for readiness and run when ready
-    runWhenReady("[title='Shorts']", () => {
+    runWhenReady(NAV_BAR_SELECTOR, () => {
         clearNavLinks()
         clearMainPageSection()
     })
@@ -54,7 +58,7 @@ function runWhenReady(readySelector, callback) {
 
 // remove side nav links related to shorts
 function clearNavLinks() {
-    let shortsLinks = document.querySelectorAll("[title='Shorts']")
+    let shortsLinks = document.querySelectorAll(NAV_BAR_SELECTOR)
 
     // return early if none was found
     if (!shortsLinks || shortsLinks.length === 0) return false
@@ -70,7 +74,7 @@ function clearNavLinks() {
 
 // remove the shorts section itself from the main feed.
 function clearMainPageSection() {
-    let shortsSection = document.querySelector("[is-shorts='']")
+    let shortsSection = document.querySelector(MAIN_PAGE_SELECTOR)
 
     // return early if undefined
     if (!shortsSection) return
