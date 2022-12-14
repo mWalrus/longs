@@ -86,8 +86,8 @@ function clearMainPageSection() {
 // we need to re-clear the main page if the feed is reset, which it is
 // when the user clicks the top bar logo to go back to the home page.
 function listenForTopBarLogoClick() {
-    let logo = document.getElementsByTagName("ytd-topbar-logo-renderer")
+    let logo = document.getElementById("logo")
     logo.addEventListener("click", () => {
-       clearMainPageSection()
+        runWhenReady(MAIN_PAGE_SELECTOR, clearMainPageSection)
     })
 }
