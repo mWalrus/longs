@@ -1,4 +1,4 @@
-# YT Shorts Remover: A TamperMonkey script
+# Longs: A Tampermonkey Script to Remove YouTube Shorts
 A tiny script that removes all traces of YouTube Shorts from your YouTube page.
 
 
