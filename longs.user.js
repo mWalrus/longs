@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         YouTube Shorts Remover
+// @name         Longs
 // @namespace    http://tampermonkey.net/
 // @version      0.1
-// @description  remove youtube shorts from your homepage.
+// @description  Remove YouTube Shorts.
 // @author       mWalrus
 // @match        https://www.youtube.com/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
