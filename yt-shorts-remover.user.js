@@ -13,6 +13,7 @@
 (function() {
     window.MAIN_PAGE_SELECTOR = "[is-shorts='']"
     window.NAV_BAR_SELECTOR = "[title='Shorts']"
+    window.LOG_PREFIX = "LONGS: "
 
     let resizeHandler = () => {
         // after this clear runs for a second time, i.e. in this listener callback,
@@ -30,8 +31,7 @@
     // we want to listen for resizes and remove any newly appended links from the DOM.
     window.addEventListener("resize", resizeHandler)
 
-    // this needs to run continually since yt re-inserts the shorts section on the main page.
-    listenForTopBarLogoClick()
+    listenForNavigatorEventsAndClear()
 })();
 
 
@@ -46,7 +46,7 @@ function runWhenReady(readySelector, callback) {
         } else {
             numAttempts++;
             if (numAttempts >= 34) {
-                console.warn('YT-SHORTS-REMOVER: Giving up after 34 attempts. Could not find: ' + readySelector);
+                log('Giving up after 34 attempts. Could not find: ' + readySelector);
             } else {
                 setTimeout(tryNow, 250 * Math.pow(1.1, numAttempts));
             }
@@ -64,7 +64,7 @@ function clearNavLinks() {
 
     for (let link of shortsLinks) {
         link.parentNode.removeChild(link)
-        console.log('YT-SHORTS-REMOVER: Removed youtube shorts link from left nav-bar')
+        log('Removed youtube shorts link from left nav-bar')
     }
 
     // report back outcome
@@ -79,14 +79,23 @@ function clearMainPageSection() {
     if (!shortsSection) return
 
     shortsSection.parentNode.removeChild(shortsSection)
-    console.log('YT-SHORTS-REMOVER: Removed shorts section from page')
+    log('Removed shorts section from page')
 }
 
-// we need to re-clear the main page if the feed is reset, which it is
-// when the user clicks the top bar logo to go back to the home page.
-function listenForTopBarLogoClick() {
-    let logo = document.querySelector("ytd-topbar-logo-renderer#logo")
-    logo.addEventListener("click", () => {
-        runWhenReady(window.MAIN_PAGE_SELECTOR, clearMainPageSection)
+function log(msg) {
+    console.log(window.LOG_PREFIX, msg)
+}
+
+function listenForNavigatorEventsAndClear() {
+    // YouTube actually defines their own events for navigation and one of them
+    // is 'yt-navigate-finish'. This is really good for us since there are no
+    // reliable ways to detect navigation without using intervals and i'd like
+    // to not have to poll for url changes for performance reasons.
+    //
+    // This event listener will fire every time we navigate on youtube which is perfect! :)
+    window.addEventListener("yt-navigate-finish", () => {
+        if (window.location.href === 'https://www.youtube.com/') {
+            runWhenReady(window.MAIN_PAGE_SELECTOR, clearMainPageSection)
+        }
     })
 }
