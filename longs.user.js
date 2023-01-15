@@ -4,16 +4,21 @@
 // @version      0.1
 // @description  Remove YouTube Shorts.
 // @author       mWalrus
-// @match        https://www.youtube.com/
+// @match        https://www.youtube.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
 // @grant        none
 // ==/UserScript==
 
 
 (function() {
-    window.MAIN_PAGE_SELECTOR = "[is-shorts='']"
-    window.NAV_BAR_SELECTOR = "[title='Shorts']"
-    window.LOG_PREFIX = "LONGS: "
+    // youtube url matcher with relevant match grouping
+    // taken from: https://stackoverflow.com/a/37704433/16166072
+    // window.URL_REGEX            = "^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
+    window.YOUTUBE_REEL_SELECTOR = "ytd-reel-shelf-renderer"
+    window.BASE_YOUTUBE_URL      = "https://www.youtube.com/"
+    window.MAIN_PAGE_SELECTOR    = "[is-shorts='']"
+    window.NAV_BAR_SELECTOR      = "[title='Shorts']"
+    window.LOG_PREFIX            = "LONGS: "
 
     let resizeHandler = () => {
         // after this clear runs for a second time, i.e. in this listener callback,
@@ -21,18 +26,30 @@
         if (clearNavLinks()) window.removeEventListener("resize", resizeHandler)
     }
 
-    // poll for readiness and run when ready
-    runWhenReady(window.NAV_BAR_SELECTOR, () => {
-        clearNavLinks()
-        clearMainPageSection()
-    })
-
+    // clean up on start
+    initialCleanup()
+    
     // since yt uses different side nav links depending on the size of the window
     // we want to listen for resizes and remove any newly appended links from the DOM.
     window.addEventListener("resize", resizeHandler)
 
     listenForNavigatorEventsAndClear()
 })();
+
+function initialCleanup() {
+    runWhenReady(window.NAV_BAR_SELECTOR, () => {
+        clearNavLinks()
+    })
+    if (userIsOnMainPage()) {
+        runWhenReady(window.MAIN_PAGE_SELECTOR, () => {
+            clearShortsSection()
+        })
+    } else if (userIsWatching()) {
+        runWhenReady(window.YOUTUBE_REEL_SELECTOR, () => {
+            clearShortsSection(window.YOUTUBE_REEL_SELECTOR)
+        })
+    }
+}
 
 
 // helper function for running when a selector can be found in the DOM.
@@ -72,8 +89,8 @@ function clearNavLinks() {
 }
 
 // remove the shorts section itself from the main feed.
-function clearMainPageSection() {
-    let shortsSection = document.querySelector(window.MAIN_PAGE_SELECTOR)
+function clearShortsSection(s = window.MAIN_PAGE_SELECTOR) {
+    let shortsSection = document.querySelector(s)
 
     // return early if undefined
     if (!shortsSection) return
@@ -94,8 +111,18 @@ function listenForNavigatorEventsAndClear() {
     //
     // This event listener will fire every time we navigate on youtube which is perfect! :)
     window.addEventListener("yt-navigate-finish", () => {
-        if (window.location.href === 'https://www.youtube.com/') {
-            runWhenReady(window.MAIN_PAGE_SELECTOR, clearMainPageSection)
+        if (userIsOnMainPage()) {
+            runWhenReady(window.MAIN_PAGE_SELECTOR, clearShortsSection)
+        } else if (userIsWatching()) {
+            runWhenReady(window.YOUTUBE_REEL_SELECTOR, () => clearShortsSection(window.YOUTUBE_REEL_SELECTOR))
         }
     })
+}
+
+function userIsOnMainPage() {
+    return window.location.href === window.BASE_YOUTUBE_URL
+}
+
+function userIsWatching() {
+    return window.location.href.includes("/watch?v=")
 }
