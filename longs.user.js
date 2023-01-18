@@ -20,17 +20,12 @@
     window.NAV_BAR_SELECTOR      = "[title='Shorts']"
     window.LOG_PREFIX            = "LONGS: "
 
-    let resizeHandler = () => {
-        // after this clear runs for a second time, i.e. in this listener callback,
-        // we want to remove the listener because there are no more nav links to remove.
+    const resizeHandler = () => {
         if (clearNavLinks()) window.removeEventListener("resize", resizeHandler)
     }
 
-    // clean up on start
     initialCleanup()
-    
-    // since yt uses different side nav links depending on the size of the window
-    // we want to listen for resizes and remove any newly appended links from the DOM.
+
     window.addEventListener("resize", resizeHandler)
 
     listenForNavigatorEventsAndClear()
@@ -48,7 +43,7 @@ function initialCleanup() {
 }
 
 
-// helper function for running when a selector can be found in the DOM.
+// helper function for running a passed callback function when a selector can be found in the DOM.
 // yoinked from https://github.com/Tampermonkey/tampermonkey/issues/1279#issuecomment-875386821
 function runWhenReady(readySelector, callback) {
     var numAttempts = 0;
@@ -68,11 +63,9 @@ function runWhenReady(readySelector, callback) {
     tryNow();
 }
 
-// remove side nav links related to shorts
 function clearNavLinks() {
-    let shortsLinks = document.querySelectorAll(window.NAV_BAR_SELECTOR)
+    const shortsLinks = document.querySelectorAll(window.NAV_BAR_SELECTOR)
 
-    // return early if none was found
     if (!shortsLinks || shortsLinks.length === 0) return false
 
     for (let link of shortsLinks) {
@@ -80,32 +73,19 @@ function clearNavLinks() {
         log('Removed youtube shorts link from left nav-bar')
     }
 
-    // report back outcome
     return true
 }
 
-// remove the shorts section itself from the main feed.
 function clearShortsSection(s = window.MAIN_PAGE_SELECTOR) {
     let shortsSection = document.querySelector(s)
 
-    // return early if undefined
     if (!shortsSection) return
 
     shortsSection.parentNode.removeChild(shortsSection)
     log('Removed shorts section from page')
 }
 
-function log(msg) {
-    console.log(window.LOG_PREFIX, msg)
-}
-
 function listenForNavigatorEventsAndClear() {
-    // YouTube actually defines their own events for navigation and one of them
-    // is 'yt-navigate-finish'. This is really good for us since there are no
-    // reliable ways to detect navigation without using intervals and i'd like
-    // to not have to poll for url changes for performance reasons.
-    //
-    // This event listener will fire every time we navigate on youtube which is perfect! :)
     window.addEventListener("yt-navigate-finish", () => {
         if (userIsOnMainPage()) {
             runWhenReady(window.MAIN_PAGE_SELECTOR, clearShortsSection)
@@ -121,4 +101,8 @@ function userIsOnMainPage() {
 
 function userIsWatching() {
     return window.location.href.includes("/watch?v=")
+}
+
+function log(msg) {
+    console.log(window.LOG_PREFIX, msg)
 }
