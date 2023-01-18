@@ -37,13 +37,9 @@
 })();
 
 function initialCleanup() {
-    runWhenReady(window.NAV_BAR_SELECTOR, () => {
-        clearNavLinks()
-    })
+    runWhenReady(window.NAV_BAR_SELECTOR, clearNavLinks)
     if (userIsOnMainPage()) {
-        runWhenReady(window.MAIN_PAGE_SELECTOR, () => {
-            clearShortsSection()
-        })
+        runWhenReady(window.MAIN_PAGE_SELECTOR, clearShortsSection)
     } else if (userIsWatching()) {
         runWhenReady(window.YOUTUBE_REEL_SELECTOR, () => {
             clearShortsSection(window.YOUTUBE_REEL_SELECTOR)
